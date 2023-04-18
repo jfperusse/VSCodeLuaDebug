@@ -1120,20 +1120,6 @@ void luaV_finishOp (lua_State *L) {
                          updatetrap(ci)); \
            luai_threadyield(L); }
 
-/* LUA_HALT { */
-// note: duplicated in ldo.c due to dependency tangle (below requires lopcodes.h and lobject.h)
-#define GET_REAL_INSTR(i,p) (GET_OPCODE(i) == OP_HALT ? (p->halts[GETARG_Bx(i)].orig) : (i))
-#define vmfetchResume()	{ \
-  if (l_unlikely(trap)) {  /* stack reallocation or hooks? */ \
-    trap = luaG_traceexec(L, pc);  /* handle hooks */ \
-    updatebase(ci);  /* correct stack */ \
-  } \
-  i = *(pc++); \
-  resume: /* LUA_HALT */ \
-  ra = RA(i); /* WARNING: any stack reallocation invalidates 'ra' */ \
-}
-/* LUA_HALT } */
-
 /* fetch an instruction and prepare its execution */
 #define vmfetch()	{ \
   if (l_unlikely(trap)) {  /* stack reallocation or hooks? */ \
@@ -1178,7 +1164,8 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
   for (;;) {
     Instruction i;  /* instruction being executed */
     StkId ra;  /* instruction's A register */
-    vmfetchResume(); /* LUA_HALT */
+    vmfetch();
+    resume: /* LUA_HALT */
     #if 0
       /* low-level line tracing for debugging Lua */
       printf("line: %d\n", luaG_getfuncline(cl->p, pcRel(pc, cl->p)));
@@ -1847,7 +1834,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         vmbreak;
       }
       /* LUA_HALT { */
-	    vmcase(OP_HALT) {
+    vmcase(OP_HALT) {
         lua_Hook old = L->hook;
         Halt h = cl->p->halts[GETARG_Bx(i)];
         L->hookmask |= LUA_MASKHALT;
@@ -1862,6 +1849,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
           return;
         }
         i = h.orig;
+        updatestack(ci);
         goto resume;
       }
       /* LUA_HALT } */
