@@ -629,7 +629,7 @@ diff --git a/src/lua.h b/src/lua.h
 Only in b/src: luac
 diff --git a/src/lvm.c b/src/lvm.c
 --- a/src/lvm.c	2022-01-13 06:24:43
-+++ b/src/lvm.c	2023-04-17 22:31:32
++++ b/src/lvm.c	2023-05-02 22:17:16
 @@ -1120,7 +1120,6 @@
                           updatetrap(ci)); \
             luai_threadyield(L); }
@@ -646,7 +646,7 @@ diff --git a/src/lvm.c b/src/lvm.c
      #if 0
        /* low-level line tracing for debugging Lua */
        printf("line: %d\n", luaG_getfuncline(cl->p, pcRel(pc, cl->p)));
-@@ -1833,6 +1833,26 @@
+@@ -1833,6 +1833,27 @@
          lua_assert(0);
          vmbreak;
        }
@@ -657,6 +657,7 @@ diff --git a/src/lvm.c b/src/lvm.c
 +        L->hookmask |= LUA_MASKHALT;
 +        L->hook = h.hook;
 +        Protect(luaG_traceexec(L, pc));
++        updatebase(ci);
 +        if (L->hookmask & LUA_MASKHALT)
 +          L->hookmask ^= LUA_MASKHALT;
 +        if (L->hook == h.hook)
@@ -666,7 +667,7 @@ diff --git a/src/lvm.c b/src/lvm.c
 +          return;
 +        }
 +        i = h.orig;
-+        updatestack(ci);
++        ra = RA(i);
 +        goto resume;
 +      }
 +      /* LUA_HALT } */

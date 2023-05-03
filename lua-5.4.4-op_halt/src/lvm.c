@@ -1840,6 +1840,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         L->hookmask |= LUA_MASKHALT;
         L->hook = h.hook;
         Protect(luaG_traceexec(L, pc));
+        updatebase(ci);
         if (L->hookmask & LUA_MASKHALT)
           L->hookmask ^= LUA_MASKHALT;
         if (L->hook == h.hook)
@@ -1849,7 +1850,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
           return;
         }
         i = h.orig;
-        updatestack(ci);
+        ra = RA(i);
         goto resume;
       }
       /* LUA_HALT } */
