@@ -235,7 +235,6 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
   dumpByte(D, f->numparams);
   dumpByte(D, f->is_vararg);
   dumpByte(D, f->maxstacksize);
-  dumpCode(D, f);
   /* LUA_HALT { */
   if (f->sizehalts == 0) {
 	  dumpCode(D, f);

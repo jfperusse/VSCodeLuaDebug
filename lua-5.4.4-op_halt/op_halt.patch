@@ -428,7 +428,7 @@ diff --git a/src/ldump.c b/src/ldump.c
 @@ -187,6 +236,14 @@
    dumpByte(D, f->is_vararg);
    dumpByte(D, f->maxstacksize);
-   dumpCode(D, f);
+-  dumpCode(D, f);
 +  /* LUA_HALT { */
 +  if (f->sizehalts == 0) {
 +	  dumpCode(D, f);
